@@ -77,13 +77,24 @@ function Button({ children, showFriend, addShowFriend }) {
 }
 
 function AddFriend({ showFriend }) {
+  const [nameF, setNameF] = useState("");
+  const [image, setImage] = useState("https://i.pravatar.cc/48");
+
   return (
     showFriend && (
       <form className="form-add-friend">
         <label>🙃Friend</label>
-        <input type="text" />
+        <input
+          type="text"
+          value={nameF}
+          onChange={(e) => setNameF(e.target.value)}
+        />
         <label>🙃Image url</label>
-        <input type="text" />
+        <input
+          type="text"
+          value={image}
+          onChange={(e) => setImage(e.target.value)}
+        />
         <Button>Add</Button>
       </form>
     )

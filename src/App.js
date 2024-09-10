@@ -2,32 +2,45 @@ import { useState } from "react";
 const initialFriends = [
   {
     id: 112123,
-    name: "Clark",
+    nameF: "Clark",
     image: "https://i.pravatar.cc/48?u=118836",
     balance: -7,
   },
   {
     id: 933372,
-    name: "Sarah",
+    nameF: "Sarah",
     image: "https://i.pravatar.cc/48?u=933372",
     balance: 20,
   },
   {
     id: 499476,
-    name: "Anthony",
+    nameF: "Anthony",
     image: "https://i.pravatar.cc/48?u=499476",
     balance: 0,
   },
 ];
 export default function App() {
   const [showFriend, setShowFriend] = useState(false);
+  const [friends, setFriends] = useState(initialFriends);
+
+  function handleFriendList(friend) {
+    setFriends((friends) => [...friends, friend]);
+    setShowFriend(false);
+  }
+
+  function handleShowAddFriend() {
+    setShowFriend((show) => !show);
+  }
 
   return (
     <div className="app">
       <div className="sidebar">
-        <FriendList />
-        <AddFriend showFriend={showFriend} addShowFriend={setShowFriend} />
-        <Button addShowFriend={setShowFriend} showFriend={showFriend}>
+        <FriendList friends={friends} />
+        <AddFriend showFriend={showFriend} onAddFriend={handleFriendList} />
+        <Button
+          handleShowAddFriend={handleShowAddFriend}
+          showFriend={showFriend}
+        >
           {showFriend === false ? "Add Friend" : "Close"}
         </Button>
       </div>
@@ -35,11 +48,10 @@ export default function App() {
     </div>
   );
 }
-function FriendList() {
-  const friend = initialFriends;
+function FriendList({ friends }) {
   return (
     <ul>
-      {friend.map((f) => (
+      {friends.map((f) => (
         <Friend friend={f} key={f.id} />
       ))}
     </ul>
@@ -49,7 +61,7 @@ function Friend({ friend }) {
   return (
     <li>
       <img src={friend.image} alt={friend.name} />
-      <h3>{friend.name}</h3>
+      <h3>{friend.nameF}</h3>
       {friend.balance > 0 && (
         <p className="green">
           {friend.name} owes you ${Math.abs(friend.balance)}
@@ -68,21 +80,38 @@ function Friend({ friend }) {
   );
 }
 
-function Button({ children, showFriend, addShowFriend }) {
+function Button({ children, handleShowAddFriend }) {
   return (
-    <button className="button" onClick={() => addShowFriend(!showFriend)}>
+    <button className="button" onClick={handleShowAddFriend}>
       {children}
     </button>
   );
 }
 
-function AddFriend({ showFriend }) {
+function AddFriend({ showFriend, onAddFriend }) {
   const [nameF, setNameF] = useState("");
   const [image, setImage] = useState("https://i.pravatar.cc/48");
 
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    if (!nameF || !image) return;
+
+    const id = crypto.randomUUID();
+    const newFriend = {
+      id,
+      nameF,
+      image: `${image}?=${id}`,
+      balance: 0,
+    };
+    onAddFriend(newFriend);
+    console.log(newFriend);
+    setNameF("");
+    setImage("https://i.pravatar.cc/48");
+  }
   return (
     showFriend && (
-      <form className="form-add-friend">
+      <form className="form-add-friend" onSubmit={handleSubmit}>
         <label>🙃Friend</label>
         <input
           type="text"
@@ -95,7 +124,9 @@ function AddFriend({ showFriend }) {
           value={image}
           onChange={(e) => setImage(e.target.value)}
         />
-        <Button>Add</Button>
+        <button type="submit" className="button">
+          Add
+        </button>
       </form>
     )
   );
